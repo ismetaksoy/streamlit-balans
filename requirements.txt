@@ -1,9 +1,5 @@
 streamlit
-pandas
-Sqlite3
-numpy
 SQLAlchemy
 datetime
 yfinance
 matplotlib.pyplot
-altair
