@@ -18,7 +18,7 @@ def GetRendement(x):
                       FROM "BalansDB" where "RekNr" = "{x}" group by "Datum" order by "Datum"''', con = engine).set_index('Datum')
 
     ### Lees TRADERECON in en sla deze op in de database
-    df_traderecon = pd.read_csv('Input/traderecon.csv', parse_dates = True, )#decimal = ','
+    df_traderecon = pd.read_csv('Input/Traderecon.csv', parse_dates = True, )#decimal = ','
     df_traderecon.to_sql('BalansTraderecon', if_exists = 'replace' , con = conn)
     
     ### LEES UIT DE DATABASE DE SOM VAN DE ONTTREKKINGEN / OVERBOEKINGEN / LICHTINGEN / STORTINGEN VOOR REKNR X
