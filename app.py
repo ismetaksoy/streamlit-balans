@@ -4,7 +4,6 @@ import altair as alt
 from datetime import datetime
 import yfinance as yf
 from Balans1908 import *
-import matplotlib.pyplot as plt
 
 st.sidebar.markdown("# Balans Vermogensbeheer Amsterdam")
 reknr = st.sidebar.text_input("Rekening nummer")
