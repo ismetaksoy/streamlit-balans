@@ -6,6 +6,8 @@ import yfinance as yf
 import streamlit as st
 from datetime import datetime
 import altair as alt
+import os
+
 
 def loaddata():
     # Maak connectie met de database en geef de locaties aan van de input bestanden
@@ -25,29 +27,30 @@ def loaddata():
 
 @st.cache
 def GetRendement(x):
-    conn = sqlite3.connect('DatabaseVB.db')
+    #conn = sqlite3.connect('DatabaseVB.db')
     engine = create_engine('sqlite:///DatabaseVB.db')
     ### Lees POSRECON in en sla deze op in de database
-    df = pd.read_csv('Input/Posrecon.csv', parse_dates = True)#
-    df.to_sql('BalansDB', if_exists = "replace", con = conn)
+    #df = pd.read_csv('Input/Posrecon.csv', parse_dates = True)#
+    #df.to_sql('BalansDB', if_exists = "replace", con = conn)
+    
     df_posrecon = pd.read_sql(f'''SELECT "Datum", ROUND(sum("Waarde EUR"),2) as "Eind Waarde" 
-                      FROM "BalansDB" where "RekNr" = "{x}" group by "Datum" order by "Datum"''', con = engine).set_index('Datum')
+                      FROM "Posrecon" where "RekNr" = "{x}" group by "Datum" order by "Datum"''', con = engine).set_index('Datum')
 
     ### Lees TRADERECON in en sla deze op in de database
-    df_traderecon = pd.read_csv('Input/Traderecon.csv', parse_dates = True, )#decimal = ','
-    df_traderecon.to_sql('BalansTraderecon', if_exists = 'replace' , con = conn)
+    # df_traderecon = pd.read_csv('Input/Traderecon.csv', parse_dates = True, )#decimal = ','
+    # df_traderecon.to_sql('BalansTraderecon', if_exists = 'replace' , con = conn)
     
     ### LEES UIT DE DATABASE DE SOM VAN DE ONTTREKKINGEN / OVERBOEKINGEN / LICHTINGEN / STORTINGEN VOOR REKNR X
-    df_onttrekking = pd.read_sql(f''' Select Datum, sum("Aantal") as "Onttrekkingen" from BalansTraderecon
+    df_onttrekking = pd.read_sql(f''' Select Datum, sum("Aantal") as "Onttrekkingen" from Traderecon
                        where RekNr = "{x}" and "Unnamed: 34" = 5025 OR "Unnamed: 34" = 5000 group by "Datum" ''', con = engine).set_index('Datum')
 
-    df_stortingen = pd.read_sql(f''' Select Datum, sum("Aantal") as "Stortingen" from BalansTraderecon
+    df_stortingen = pd.read_sql(f''' Select Datum, sum("Aantal") as "Stortingen" from Traderecon
                        where RekNr = "{x}"  and "Unnamed: 34" = 5026 group by "Datum" ''', con = engine).set_index('Datum')
 
-    df_lichtingen = pd.read_sql(f''' Select Datum, sum("Aantal") as "Lichtingen" from BalansTraderecon
+    df_lichtingen = pd.read_sql(f''' Select Datum, sum("Aantal") as "Lichtingen" from Traderecon
                         where RekNr = "{x}" and "Type" = "L" group by "Datum" ''', con = engine).set_index('Datum')
 
-    df_deponeringen = pd.read_sql(f''' Select Datum, sum("Aantal") as "Deponeringen" from BalansTraderecon
+    df_deponeringen = pd.read_sql(f''' Select Datum, sum("Aantal") as "Deponeringen" from Traderecon
                         where RekNr = "{x}" and "Type" = "D" group by "Datum" ''', con = engine).set_index('Datum')
     
     # Concat de 4 dataframes uit de Traderecon query in 1 dataframe en merge deze met de Posrecon dataframe
