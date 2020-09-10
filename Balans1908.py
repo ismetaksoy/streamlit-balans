@@ -7,6 +7,22 @@ import streamlit as st
 from datetime import datetime
 import altair as alt
 
+def loaddata():
+    # Maak connectie met de database en geef de locaties aan van de input bestanden
+    conn = sqlite3.connect('DatabaseVB.db')
+    posdirectory = './Input/Posrecon'
+    tradedirectory = './Input/Traderecon'
+    
+    # Loop over de input bestanden en laad ze in de database
+    for file in os.listdir(posdirectory):
+        df = pd.read_csv(posdirectory+'/'+file)
+        df.to_sql('Posrecon', if_exists = "append", con = conn)
+    
+    for file in os.listdir(tradedirectory):
+        df = pd.read_csv(tradedirectory+'/'+file)
+        df.to_sql('Traderecon', if_exists = "append", con = conn)
+
+
 @st.cache
 def GetRendement(x):
     conn = sqlite3.connect('DatabaseVB.db')
